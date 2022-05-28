@@ -7,6 +7,7 @@
 //========================================================//
 
 #include "cache.h"
+#include <stdio.h>
 
 //
 // TODO:Student Information
