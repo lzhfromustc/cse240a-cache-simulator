@@ -11,9 +11,9 @@
 //
 // TODO:Student Information
 //
-const char *studentName = "NAME";
-const char *studentID   = "PID";
-const char *email       = "EMAIL";
+const char *studentName = "Ziheng Liu";
+const char *studentID   = "A59010078";
+const char *email       = "zil060@ucsd.edu";
 
 //------------------------------------//
 //        Cache Configuration         //
@@ -55,13 +55,56 @@ uint64_t l2cachePenalties; // L2$ penalties
 //        Cache Data Structures       //
 //------------------------------------//
 
-//
-//TODO: Add your Cache data structures here
-//
+// Utilities
+#define DEBUG
+
+// L1 I-cache
+
+typedef struct icache_block_struct {
+  uint32_t tag;
+  uint8_t valid;
+  uint32_t lru; // when a block is used, set its lru to 0, and all other blocks in the same set have their lru ++.
+                // TODO: when a block's lru is too large, decrease lru
+} icache_block;
+
+typedef struct icache_set_struct {
+  icache_block *blocks;
+} icache_set;
+
+typedef struct icache_struct {
+  icache_set *sets;
+} icache;
+
+icache icacheObj;
+
 
 //------------------------------------//
 //          Cache Functions           //
 //------------------------------------//
+
+// Utilities
+uint32_t my_pow2(uint32_t input) {
+  return 1 << input;
+}
+
+uint32_t my_log2(uint32_t input) {
+  for (uint32_t i = 0; i < 100; i++) {
+    uint32_t try = 1 << i;
+    if (try == input) {
+      return i;
+    }
+  }
+  return 0;
+}
+
+void test_my_util() {
+  if (my_log2(2048) != 11) {
+    printf("\tError in test util: my_log2(2048) == %u\n", my_log2(2048));
+  }
+  if (my_pow2(13) != 8192) {
+    printf("\tError in test util: my_pow2(13) == %u\n", my_pow2(13));
+  }
+}
 
 // Initialize the Cache Hierarchy
 //
@@ -82,6 +125,23 @@ init_cache()
   //
   //TODO: Initialize Cache Simulator Data Structures
   //
+
+  // test my utilities
+  #ifdef DEBUG
+  test_my_util();
+  #endif // DEBUG
+
+  // if I-cache exists, initialize it
+  if (icacheSets) {
+    icacheObj.sets = (icache_set*)malloc(icacheSets * sizeof(icache_set));
+    for (int i = 0; i < icacheSets; i++) {
+      icacheObj.sets[i].blocks = (icache_block*)malloc(icacheAssoc * sizeof(icache_block));
+    }
+    #ifdef DEBUG
+    printf("\tLog: Init state: I-Cache is initialized\n");
+    #endif
+  }
+  
 }
 
 // Perform a memory access through the icache interface for the address 'addr'
